@@ -1,14 +1,15 @@
 # Beets configuration --------------------------------------------------------
 
-directory: /mnt/storage-1/music
+directory: E:\Music\Lossless Albums\Sorted
+library: E:\Music\beets_settings\Musiclibrary.db
 
 import:
     # write metadata to music files
     write: yes
 
     # move imported files from source to the music directory
-    move: yes
-    copy: no
+    move: no
+    copy: yes
     delete: no
 
     # use auto-tagging where possible
@@ -31,7 +32,7 @@ import:
     flat: no
 
 # use the release-date of the original (first) release of an album?
-original_date: no
+original_date: yes
 
 # on multi-disk releases, assign track numbers for the whole album.
 # If "per disk", make sure tracknames do not collide ("paths" setting).
@@ -43,15 +44,17 @@ clutter: ["Thumbs.DB", ".DS_Store", "*.m3u", ".pls", "*.jpg"]
 # files/directories matching one of these patterns are ignored during import
 ignore: [".*", "*~", "System Volume Information"]
 
-
 # Paths ----------------------------------------------------------------------
 
 # Paths and filenames for music files
 # relative to music directory
 paths:
-    default: %asciify{$albumartist}/%asciify{$album}%aunique{}/$track %asciify{$title}
-    singleton: Non-Album/%asciify{$artist}/%asciify{$title}
-    comp: Compilations/%asciify{$album}%aunique{}/$track %asciify{$title}
+    default: %asciify{$albumartist} - %asciify{$album}%aunique{}/$track. %asciify{$title}
+    singleton: Non-Album/%asciify{$artist} - %asciify{$title}
+    comp: Compilations/Variaous Artists - %asciify{$album}%aunique{}/$track. %asciify{$title}
+    ext:log: $albumpath/$artist - $album
+    ext:cue: $albumpath/$artist - $album
+    ext:jpg: $albumpath/cover
 
 # replace special characters in generated filenames
 replace:
@@ -69,7 +72,6 @@ art_filename: cover  # results in "cover.jpg"
 
 max_filename_length: 0  # unlimited
 
-
 # General --------------------------------------------------------------------
 
 # use mutliple threads during import
@@ -80,7 +82,7 @@ verbose: no
 
 # User Interface -------------------------------------------------------------
 
-color: yes
+color: no
 list_format_item: %upper{$artist} - $album - $track. $title
 list_format_album: %upper{$albumartist} - $album
 time_format: '%Y-%m-%d %H:%M:%S'
@@ -121,9 +123,9 @@ match:
         track_length: 2.0
         track_id: 5.0
     preferred:
-        countries: []
-        media: []
-        original_year: no
+        media: ['CD', 'Digital Media|File']
+        countries: ['US', 'GB|UK', 'JP']
+        original_year: yes
     ignored: []
     track_length_grace: 10
     track_length_max: 30
@@ -132,15 +134,18 @@ match:
 # Plugins --------------------------------------------------------------------
 
 plugins: [
+    zero,
+    #hook,
+    copyartifacts,
     discogs,
     lyrics,
-    echonest_tempo,
+    #echonest_tempo,
     fetchart,
     embedart,
     lastgenre,
     scrub,
     mbsync,
-    mpdupdate,
+    #mpdupdate,
     #mpdstats,
     missing,
     duplicates
@@ -149,29 +154,43 @@ pluginpath: []
 
 
 # Plugins Config -------------------------------------------------------------
+#zero:
+    #keep_fields: album albumartist artist discnumber genre title track tracktotal year mb_trackid images rg_album_gain rg_album_peak rg_track_gain rg_track_peak 
+zero:
+    fields: comments
+    
+copyartifacts:
+    extensions: .cue .log .jpg
+    print_ignored: yes
+
+#hook:
+#    hooks:
+#        - event: item_copied
+#          command: echo CUETools.ARCUE --verbose {album.path}.cue
 
 lyrics:
     auto: yes
     fallback: ''
 
-echonest_tempo:
-    auto: yes
+#echonest_tempo:
+#    auto: yes
 
 lastgenre:
-    whitelist: ~/.config/beets/genres.txt
-    canoncical: ~/.config/beets/genres-tree.yaml
+    whitelist: E:\Music\beets_settings\genres.txt
+    canoncical: E:\Music\beets_settings\genres-tree.yaml
     fallback: ''
     source: artist
 
 fetchart:
     auto: yes
-    maxwidth: 300
+    #maxwidth: 300
     cautious: true
-    cover_names: cover folder
+    cover_names: cover
+    sources: itunes *
 
 embedart:
     auto: yes
-    maxwidth: 300
+    maxwidth: 500
 
 replaygain:
     auto: yes
@@ -180,20 +199,6 @@ replaygain:
 
 scrub:
     auto: yes
-
-# required for mpdstats
-mpd:
-    host: localhost
-    port: 6600
-    password:  # none
-
-mpdstats:
-    rating: False
-    # two ratings are calculated:
-    # "rolling" based on recent development
-    # "stable" based on all-time development
-    # rating mix 0.0 is all "rolling", 1.0 is all "stable"
-    rating_mix: 0.75
 
 missing:
     format: $albumartist - $album - $track - $title
