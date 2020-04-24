@@ -12,6 +12,10 @@
 separate installation:
 1. install imagemagick
 
+patches:
+1. replace C:\Users\Misthunter\AppData\Local\Programs\Python\Python36\Lib\site-packages\beetsplug\copyartifacts.py with latest in plugin_patch directory
+
+
 ## To dos:
 -------
 1. Run external cuetools command: e.g.:
